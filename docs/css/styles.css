@@ -17,7 +17,7 @@ body {
 .container {
   padding: 1rem;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
 }
 
 .card {
@@ -256,13 +256,51 @@ body {
   color: #f87171;
 }
 
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem;
+  border-radius: 10px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #fff;
+}
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
 /* Modules Section */
 .modules-section {
-  margin-top: 1.5rem;
   text-align: left;
 }
 
-.modules-title {
+.section-title {
   color: #fff;
   font-size: 1rem;
   font-weight: 500;
@@ -342,6 +380,389 @@ body {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
+/* Dashboard Section */
+.dashboard-section {
+  text-align: left;
+}
+
+.health-gauge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.health-gauge {
+  text-align: center;
+}
+
+.gauge-svg {
+  width: 200px;
+  height: 100px;
+}
+
+#gaugeFill {
+  transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+}
+
+.gauge-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #4ade80;
+  margin-top: -1.5rem;
+}
+
+.gauge-label {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chart-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.chart-card h3 {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-card canvas {
+  max-height: 150px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+/* Security Section */
+.security-section {
+  text-align: left;
+}
+
+.security-summary {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.security-score-card {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  min-width: 120px;
+}
+
+.security-score {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4ade80;
+}
+
+.security-label {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.security-stats {
+  flex: 1;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sec-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.sec-stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.sec-stat-value.warning { color: #fbbf24; }
+.sec-stat-value.danger { color: #ef4444; }
+
+.sec-stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.security-issues {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 1rem;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.no-issues {
+  color: #64748b;
+  text-align: center;
+  padding: 1rem;
+}
+
+.security-issue {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  border-left: 3px solid;
+}
+
+.security-issue.critical {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.security-issue.warning {
+  border-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.security-issue.info {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.issue-icon {
+  font-size: 1.25rem;
+}
+
+.issue-details {
+  flex: 1;
+}
+
+.issue-title {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.issue-file {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.issue-desc {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.security-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.filter-btn.active {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.5);
+  color: #a5b4fc;
+}
+
+/* GitHub Section */
+.github-section {
+  text-align: left;
+}
+
+.github-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.github-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.github-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.github-btn .icon {
+  font-size: 1rem;
+}
+
+.github-data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.github-panel {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.github-panel h3 {
+  color: #fff;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.github-panel.full-width {
+  grid-column: 1 / -1;
+}
+
+.github-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.empty-state {
+  color: #64748b;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.85rem;
+}
+
+.pr-item, .issue-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  margin-bottom: 0.25rem;
+}
+
+.pr-status, .issue-status {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.pr-status.open { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.pr-status.closed { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.issue-status.open { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.issue-status.closed { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+
+.pr-title, .issue-title-text {
+  flex: 1;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.branch-compare {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.branch-compare .diff-stat {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.branch-compare .diff-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.branch-compare .diff-item.add { color: #4ade80; }
+.branch-compare .diff-item.del { color: #f87171; }
+
+.commit-status {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.commit-status h3 {
+  color: #fff;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.status-info {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
 /* Log Section */
 .log-section {
   margin-top: 1.5rem;
@@ -359,10 +780,10 @@ body {
   background: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   padding: 0.75rem;
-  max-height: 150px;
+  max-height: 120px;
   overflow-y: auto;
   font-family: 'Monaco', 'Consolas', monospace;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .log-container::-webkit-scrollbar {
@@ -415,7 +836,7 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   .container {
     padding: 0.5rem;
   }
@@ -434,5 +855,37 @@ body {
   
   .token-section {
     flex-direction: column;
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .security-summary {
+    flex-direction: column;
+  }
+  
+  .security-stats {
+    flex-direction: row;
+  }
+  
+  .github-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .github-data {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-nav {
+    flex-wrap: wrap;
+  }
+  
+  .tab-btn {
+    flex: 1 1 45%;
   }
 }

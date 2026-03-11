@@ -6,6 +6,7 @@
   <meta name="description" content="Deterministic Repository Management System">
   <title>System Repository - Lifestar Scanner</title>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
@@ -29,7 +30,7 @@
       
       <!-- Token Input Section -->
       <div class="token-section" id="tokenSection">
-        <input type="password" id="tokenInput" class="token-input" placeholder="GitHub Personal Access Token (optional)">
+        <input type="password" id="tokenInput" class="token-input" placeholder="GitHub Personal Access Token (for write operations)">
         <button class="token-btn" id="saveTokenBtn">Save Token</button>
       </div>
       
@@ -48,11 +49,165 @@
       
       <div class="status-message" id="statusMessage"></div>
       
-      <!-- Modules Section -->
-      <div class="modules-section">
-        <h2 class="modules-title">Processing Modules</h2>
-        <div class="modules-container" id="modulesContainer">
-          <!-- Modules will be dynamically generated -->
+      <!-- Tab Navigation -->
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="modules">Modules</button>
+        <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="security">Security</button>
+        <button class="tab-btn" data-tab="github">GitHub</button>
+      </div>
+      
+      <!-- Modules Tab -->
+      <div class="tab-content active" id="tab-modules">
+        <div class="modules-section">
+          <h2 class="section-title">Processing Modules</h2>
+          <div class="modules-container" id="modulesContainer"></div>
+        </div>
+      </div>
+      
+      <!-- Dashboard Tab -->
+      <div class="tab-content" id="tab-dashboard">
+        <div class="dashboard-section">
+          <h2 class="section-title">Repository Analytics</h2>
+          
+          <!-- Health Score Gauge -->
+          <div class="health-gauge-container">
+            <div class="health-gauge">
+              <svg viewBox="0 0 100 50" class="gauge-svg">
+                <path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#1e293b" stroke-width="8"/>
+                <path id="gaugeFill" d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#4ade80" stroke-width="8" stroke-dasharray="125.6" stroke-dashoffset="125.6"/>
+              </svg>
+              <div class="gauge-value" id="healthScore">0</div>
+              <div class="gauge-label">Health Score</div>
+            </div>
+          </div>
+          
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3>File Distribution</h3>
+              <canvas id="fileDistChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>Module Performance</h3>
+              <canvas id="modulePerfChart"></canvas>
+            </div>
+            <div class="chart-card full-width">
+              <h3>Analysis History</h3>
+              <canvas id="historyChart"></canvas>
+            </div>
+          </div>
+          
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-value" id="totalFiles">0</span>
+              <span class="stat-label">Total Files</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value" id="totalDirs">0</span>
+              <span class="stat-label">Directories</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value" id="totalSize">0</span>
+              <span class="stat-label">Size (KB)</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value" id="coherenceScore">0</span>
+              <span class="stat-label">Coherence</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Security Tab -->
+      <div class="tab-content" id="tab-security">
+        <div class="security-section">
+          <h2 class="section-title">Security Analysis</h2>
+          
+          <div class="security-summary">
+            <div class="security-score-card">
+              <div class="security-score" id="securityScore">--</div>
+              <div class="security-label">Security Score</div>
+            </div>
+            <div class="security-stats">
+              <div class="sec-stat">
+                <span class="sec-stat-value" id="secretsFound">0</span>
+                <span class="sec-stat-label">Secrets Detected</span>
+              </div>
+              <div class="sec-stat">
+                <span class="sec-stat-value" id="vulnerabilities">0</span>
+                <span class="sec-stat-label">Vulnerabilities</span>
+              </div>
+              <div class="sec-stat">
+                <span class="sec-stat-value" id="warnings">0</span>
+                <span class="sec-stat-label">Warnings</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="security-issues" id="securityIssues">
+            <div class="no-issues">Run a scan to check for security issues</div>
+          </div>
+          
+          <div class="security-filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="critical">Critical</button>
+            <button class="filter-btn" data-filter="warning">Warning</button>
+            <button class="filter-btn" data-filter="info">Info</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- GitHub Integration Tab -->
+      <div class="tab-content" id="tab-github">
+        <div class="github-section">
+          <h2 class="section-title">GitHub Integration</h2>
+          
+          <div class="github-actions">
+            <button class="github-btn" id="fetchPRs">
+              <span class="icon">🔀</span> Fetch Pull Requests
+            </button>
+            <button class="github-btn" id="fetchIssues">
+              <span class="icon">📋</span> Fetch Issues
+            </button>
+            <button class="github-btn" id="createIssue">
+              <span class="icon">➕</span> Create Issue from Scan
+            </button>
+            <button class="github-btn" id="fetchBranches">
+              <span class="icon">🌿</span> Compare Branches
+            </button>
+          </div>
+          
+          <div class="github-data">
+            <div class="github-panel" id="prPanel">
+              <h3>Pull Requests</h3>
+              <div class="github-list" id="prList">
+                <div class="empty-state">Click "Fetch Pull Requests" to load</div>
+              </div>
+            </div>
+            
+            <div class="github-panel" id="issuesPanel">
+              <h3>Issues</h3>
+              <div class="github-list" id="issuesList">
+                <div class="empty-state">Click "Fetch Issues" to load</div>
+              </div>
+            </div>
+            
+            <div class="github-panel full-width" id="branchPanel">
+              <h3>Branch Comparison</h3>
+              <div class="branch-compare" id="branchCompare">
+                <div class="empty-state">Click "Compare Branches" to analyze</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="commit-status">
+            <h3>Commit Status</h3>
+            <div class="status-info" id="commitStatus">
+              <span class="status-text">No recent commit status</span>
+            </div>
+          </div>
         </div>
       </div>
       
