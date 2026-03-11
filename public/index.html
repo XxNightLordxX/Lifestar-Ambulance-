@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="System Repository Management Interface">
+  <title>System Repository</title>
+  <link rel="stylesheet" href="css/styles.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+  <div class="container">
+    <main class="card">
+      <h1 class="title">System Repository</h1>
+      
+      <!-- State Indicator -->
+      <div class="state-indicator" id="stateIndicator">
+        <div class="state-badge">
+          <span class="state-dot"></span>
+          <span class="state-text">IDLE</span>
+        </div>
+      </div>
+      
+      <!-- Trigger Control -->
+      <div class="trigger-control">
+        <button class="trigger-button" id="triggerButton" type="button">
+          Run System Cycle
+        </button>
+        <p class="trigger-hint">Click to trigger a full system cycle</p>
+      </div>
+    </main>
+    
+    <footer class="footer">
+      <p>Deterministic Repository Management System</p>
+    </footer>
+  </div>
+  
+  <script src="js/app.js"></script>
+</body>
+</html>
