@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="System Repository Management Interface">
+  <meta name="description" content="Deterministic Repository Management System">
   <title>System Repository - Lifestar Scanner</title>
   <link rel="stylesheet" href="css/styles.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
   <div class="container">
@@ -23,17 +24,48 @@
           <span class="state-dot"></span>
           <span class="state-text">IDLE</span>
         </div>
+        <span class="queue-count" id="queueCount"></span>
       </div>
       
-      <button class="trigger-btn" id="triggerBtn" type="button">
-        Scan Repository
-      </button>
+      <!-- Token Input Section -->
+      <div class="token-section" id="tokenSection">
+        <input type="password" id="tokenInput" class="token-input" placeholder="GitHub Personal Access Token (optional)">
+        <button class="token-btn" id="saveTokenBtn">Save Token</button>
+      </div>
+      
+      <div class="controls">
+        <button class="trigger-btn" id="triggerBtn" type="button">
+          Run System Cycle
+        </button>
+        <div class="execution-mode">
+          <label class="mode-toggle">
+            <input type="checkbox" id="continuousMode">
+            <span class="toggle-slider"></span>
+            <span class="mode-label">Continuous Mode</span>
+          </label>
+        </div>
+      </div>
       
       <div class="status-message" id="statusMessage"></div>
+      
+      <!-- Modules Section -->
+      <div class="modules-section">
+        <h2 class="modules-title">Processing Modules</h2>
+        <div class="modules-container" id="modulesContainer">
+          <!-- Modules will be dynamically generated -->
+        </div>
+      </div>
+      
+      <!-- Activity Log -->
+      <div class="log-section">
+        <h3 class="log-title">Activity Log</h3>
+        <div class="log-container" id="logContainer"></div>
+      </div>
     </main>
     
     <footer class="footer">
       <p>Scanning: <a href="https://github.com/XxNightLordxX/Lifestar" target="_blank">XxNightLordxX/Lifestar</a></p>
+      <p class="cycle-count">Cycles: <span id="cycleCount">0</span></p>
     </footer>
   </div>
   
