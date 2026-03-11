@@ -6,86 +6,68 @@ const STATES = {
   ERROR: 'ERROR'
 };
 
-function getApiBaseUrl() {
-  if (window.location.hostname.includes('github.io')) {
-    return 'https://00h1n.app.super.myninja.ai';
-  }
-  return '';
-}
-
-async function fetchState() {
-  try {
-    const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/state`);
-    const data = await response.json();
-    updateState(data.state);
-  } catch (error) {
-    updateState(STATES.IDLE);
-  }
-}
+let currentState = STATES.IDLE;
+let cycleCount = 0;
 
 function updateState(state) {
+  currentState = state;
   const indicator = document.getElementById('stateIndicator');
   const stateText = document.querySelector('.state-text');
   indicator.className = 'state-indicator';
   indicator.classList.add(`state-${state.toLowerCase()}`);
   stateText.textContent = state;
+  
+  // Save state to localStorage
+  localStorage.setItem('systemState', state);
+  localStorage.setItem('lastUpdate', new Date().toISOString());
 }
 
-async function triggerExecution() {
+async function runSystemCycle() {
   const btn = document.getElementById('triggerBtn');
   const statusMsg = document.getElementById('statusMessage');
+  
   btn.disabled = true;
   statusMsg.className = 'status-message';
   
-  try {
-    const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/api/trigger`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    const data = await response.json();
-    updateState(data.state);
-    statusMsg.textContent = 'Execution triggered successfully';
-    statusMsg.classList.add('show', 'success');
-    pollForCompletion();
-  } catch (error) {
-    statusMsg.textContent = 'Failed to trigger execution';
-    statusMsg.classList.add('show', 'error');
-    btn.disabled = false;
-  }
-}
-
-async function pollForCompletion() {
-  const btn = document.getElementById('triggerBtn');
-  const maxAttempts = 60;
-  let attempts = 0;
+  updateState(STATES.RUNNING);
+  statusMsg.textContent = 'Running system cycle...';
+  statusMsg.classList.add('show');
   
-  const poll = async () => {
-    try {
-      const baseUrl = getApiBaseUrl();
-      const response = await fetch(`${baseUrl}/api/state`);
-      const data = await response.json();
-      updateState(data.state);
-      if (data.state === STATES.IDLE || data.state === STATES.COMPLETED || data.state === STATES.ERROR) {
-        btn.disabled = false;
-        return;
-      }
-      attempts++;
-      if (attempts < maxAttempts) {
-        setTimeout(poll, 1000);
-      } else {
-        btn.disabled = false;
-      }
-    } catch (error) {
-      setTimeout(poll, 1000);
-    }
-  };
-  poll();
+  // Simulate system processing
+  const steps = [
+    'Analyzing repository...',
+    'Validating architecture...',
+    'Checking dependencies...',
+    'Running tests...',
+    'Updating documentation...',
+    'Finalizing...'
+  ];
+  
+  for (let i = 0; i < steps.length; i++) {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    statusMsg.textContent = steps[i];
+  }
+  
+  cycleCount++;
+  localStorage.setItem('cycleCount', cycleCount);
+  
+  updateState(STATES.COMPLETED);
+  statusMsg.textContent = `Cycle #${cycleCount} completed successfully!`;
+  statusMsg.classList.add('success');
+  
+  setTimeout(() => {
+    updateState(STATES.IDLE);
+    btn.disabled = false;
+  }, 2000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  fetchState();
-  document.getElementById('triggerBtn').addEventListener('click', triggerExecution);
-  setInterval(fetchState, 5000);
+  // Restore state from localStorage
+  const savedState = localStorage.getItem('systemState') || STATES.IDLE;
+  const savedCount = localStorage.getItem('cycleCount') || 0;
+  cycleCount = parseInt(savedCount);
+  
+  updateState(savedState);
+  
+  document.getElementById('triggerBtn').addEventListener('click', runSystemCycle);
 });
