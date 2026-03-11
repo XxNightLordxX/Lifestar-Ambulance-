@@ -3,389 +3,444 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Deterministic Repository Management System">
+  <meta name="description" content="Lifestar Repository Scanner - Advanced code analysis, security scanning, and GitHub integration">
+  <meta name="theme-color" content="#667eea">
   <title>System Repository - Lifestar Scanner</title>
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://api.github.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  
+  <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
-  <div class="container">
-    <main class="card">
-      <header class="header">
-        <h1 class="title">Lifestar Repository Scanner</h1>
-        <div class="repo-switcher">
-          <select id="repoSelector" class="repo-select">
-            <option value="XxNightLordxX/Lifestar">XxNightLordxX/Lifestar</option>
-          </select>
-          <button class="add-repo-btn" id="addRepoBtn" title="Add Repository">+</button>
-        </div>
-      </header>
-      
-      <div class="repo-info" id="repoInfo">
-        <div class="repo-stats">
-          <span>📁 Loading...</span>
-        </div>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header" role="banner">
+      <div class="logo">
+        <div class="logo-icon" aria-hidden="true">🔍</div>
+        <span class="logo-text">Lifestar Scanner</span>
       </div>
       
-      <div class="state-indicator" id="stateIndicator">
-        <div class="state-badge">
-          <span class="state-dot"></span>
-          <span class="state-text">IDLE</span>
-        </div>
-        <span class="queue-count" id="queueCount"></span>
+      <div class="status-badge" role="status" aria-live="polite">
+        <div class="state-indicator" id="stateIndicator" aria-hidden="true"></div>
+        <span class="state-text">IDLE</span>
+        <span id="queueCount" class="queue-count"></span>
       </div>
       
-      <!-- Token Input Section -->
-      <div class="token-section" id="tokenSection">
-        <input type="password" id="tokenInput" class="token-input" placeholder="GitHub Personal Access Token (for write operations)">
-        <button class="token-btn" id="saveTokenBtn">Save</button>
-      </div>
-      
-      <div class="controls">
-        <button class="trigger-btn" id="triggerBtn" type="button">
-          Run System Cycle
+      <div class="header-actions">
+        <select id="repoSelector" class="repo-selector" aria-label="Select repository">
+          <!-- Populated by JS -->
+        </select>
+        <button id="addRepoBtn" class="btn btn-sm btn-secondary" aria-label="Add repository">
+          + Add Repo
         </button>
-        <div class="execution-mode">
-          <label class="mode-toggle">
-            <input type="checkbox" id="continuousMode">
-            <span class="toggle-slider"></span>
-            <span class="mode-label">Continuous Mode</span>
-          </label>
+      </div>
+    </header>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" role="complementary">
+      <section class="sidebar-section">
+        <h2 class="section-title">GitHub Token</h2>
+        <div class="token-section">
+          <div class="token-input-group">
+            <input type="password" 
+                   id="tokenInput" 
+                   class="token-input" 
+                   placeholder="Personal Access Token"
+                   aria-label="GitHub Personal Access Token">
+            <button id="saveTokenBtn" class="btn btn-sm">Save</button>
+          </div>
+          <small class="form-hint">Required for write operations</small>
         </div>
-      </div>
+      </section>
       
-      <div class="status-message" id="statusMessage"></div>
+      <section class="sidebar-section">
+        <h2 class="section-title">Controls</h2>
+        <button id="triggerBtn" class="btn btn-success" style="width: 100%">
+          ▶ Run Analysis
+        </button>
+        
+        <label class="module-toggle mt-2">
+          <input type="checkbox" id="continuousMode">
+          <span>Continuous Mode</span>
+        </label>
+      </section>
       
+      <section class="sidebar-section">
+        <h2 class="section-title">Activity Log</h2>
+        <div id="logContainer" class="log-container" role="log" aria-live="polite">
+          <!-- Log entries populated by JS -->
+        </div>
+      </section>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content" role="main">
       <!-- Tab Navigation -->
-      <div class="tab-nav">
-        <button class="tab-btn active" data-tab="modules">Modules</button>
-        <button class="tab-btn" data-tab="dashboard">Dashboard</button>
-        <button class="tab-btn" data-tab="security">Security</button>
-        <button class="tab-btn" data-tab="analytics">Analytics</button>
-        <button class="tab-btn" data-tab="github">GitHub</button>
-        <button class="tab-btn" data-tab="config">Config</button>
-      </div>
+      <nav class="tab-nav" role="tablist" aria-label="Main navigation">
+        <button class="tab-btn active" data-tab="modules" role="tab" aria-selected="true" aria-controls="tab-modules">Modules</button>
+        <button class="tab-btn" data-tab="dashboard" role="tab" aria-selected="false" aria-controls="tab-dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="security" role="tab" aria-selected="false" aria-controls="tab-security">Security</button>
+        <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false" aria-controls="tab-analytics">Analytics</button>
+        <button class="tab-btn" data-tab="github" role="tab" aria-selected="false" aria-controls="tab-github">GitHub</button>
+        <button class="tab-btn" data-tab="config" role="tab" aria-selected="false" aria-controls="tab-config">Config</button>
+      </nav>
       
       <!-- Modules Tab -->
-      <div class="tab-content active" id="tab-modules">
-        <div class="modules-section">
-          <div class="section-header">
-            <h2 class="section-title">Processing Modules</h2>
-            <button class="icon-btn" id="toggleAllModules" title="Enable/Disable All">⚙️</button>
+      <section id="tab-modules" class="tab-content active" role="tabpanel" aria-labelledby="tab-modules">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Processing Modules</h2>
+            <span id="statusMessage" class="status-message"></span>
           </div>
-          <div class="modules-container" id="modulesContainer"></div>
+          <div id="modulesContainer" class="modules-grid">
+            <!-- Modules populated by JS -->
+          </div>
         </div>
-      </div>
+        
+        <div class="stats-grid mt-2">
+          <div class="stat-card">
+            <div class="stat-value" id="cycleCount">0</div>
+            <div class="stat-label">Cycles Run</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="filesAnalyzed">0</div>
+            <div class="stat-label">Files Analyzed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="issuesFound">0</div>
+            <div class="stat-label">Issues Found</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="healthScore">--</div>
+            <div class="stat-label">Health Score</div>
+          </div>
+        </div>
+      </section>
       
       <!-- Dashboard Tab -->
-      <div class="tab-content" id="tab-dashboard">
-        <div class="dashboard-section">
-          <h2 class="section-title">Repository Analytics</h2>
-          
-          <!-- Health Score Gauge -->
-          <div class="health-gauge-container">
-            <div class="health-gauge">
-              <svg viewBox="0 0 100 50" class="gauge-svg">
-                <path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#1e293b" stroke-width="8"/>
-                <path id="gaugeFill" d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#4ade80" stroke-width="8" stroke-dasharray="125.6" stroke-dashoffset="125.6"/>
-              </svg>
-              <div class="gauge-value" id="healthScore">0</div>
-              <div class="gauge-label">Health Score</div>
+      <section id="tab-dashboard" class="tab-content" role="tabpanel" aria-labelledby="tab-dashboard">
+        <h2 class="section-title mb-2">Repository Analytics</h2>
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3 class="card-title">File Distribution</h3>
+            <div class="chart-container">
+              <canvas id="fileDistChart" aria-label="File distribution chart"></canvas>
             </div>
           </div>
           
-          <!-- Charts Grid -->
-          <div class="charts-grid">
-            <div class="chart-card">
-              <h3>File Distribution</h3>
-              <canvas id="fileDistChart"></canvas>
-            </div>
-            <div class="chart-card">
-              <h3>Module Performance</h3>
-              <canvas id="modulePerfChart"></canvas>
-            </div>
-            <div class="chart-card full-width">
-              <h3>Analysis History</h3>
-              <canvas id="historyChart"></canvas>
+          <div class="card">
+            <h3 class="card-title">Module Performance</h3>
+            <div class="chart-container">
+              <canvas id="modulePerfChart" aria-label="Module performance chart"></canvas>
             </div>
           </div>
           
-          <!-- Stats Grid -->
-          <div class="stats-grid">
-            <div class="stat-card">
-              <span class="stat-value" id="totalFiles">0</span>
-              <span class="stat-label">Total Files</span>
+          <div class="card">
+            <h3 class="card-title">Analysis History</h3>
+            <div class="chart-container">
+              <canvas id="historyChart" aria-label="Analysis history chart"></canvas>
             </div>
-            <div class="stat-card">
-              <span class="stat-value" id="totalDirs">0</span>
-              <span class="stat-label">Directories</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-value" id="totalSize">0</span>
-              <span class="stat-label">Size (KB)</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-value" id="coherenceScore">0</span>
-              <span class="stat-label">Coherence</span>
+          </div>
+          
+          <div class="card">
+            <h3 class="card-title">Health Trends</h3>
+            <div class="chart-container">
+              <canvas id="trendsChart" aria-label="Health trends chart"></canvas>
             </div>
           </div>
         </div>
-      </div>
+      </section>
       
       <!-- Security Tab -->
-      <div class="tab-content" id="tab-security">
-        <div class="security-section">
-          <h2 class="section-title">Security Analysis</h2>
-          
-          <div class="security-summary">
-            <div class="security-score-card">
-              <div class="security-score" id="securityScore">--</div>
-              <div class="security-label">Security Score</div>
+      <section id="tab-security" class="tab-content" role="tabpanel" aria-labelledby="tab-security">
+        <div class="security-header">
+          <div class="security-score">
+            <div class="score-circle" style="--score: 75%;">
+              <span id="securityScore">75</span>
             </div>
-            <div class="security-stats">
-              <div class="sec-stat">
-                <span class="sec-stat-value" id="secretsFound">0</span>
-                <span class="sec-stat-label">Secrets</span>
-              </div>
-              <div class="sec-stat">
-                <span class="sec-stat-value" id="vulnerabilities">0</span>
-                <span class="sec-stat-label">Critical</span>
-              </div>
-              <div class="sec-stat">
-                <span class="sec-stat-value" id="warnings">0</span>
-                <span class="sec-stat-label">Warnings</span>
-              </div>
+            <div>
+              <div class="metric-title">Security Score</div>
+              <div class="metric-value" id="securityStatus">Good</div>
             </div>
           </div>
           
-          <div class="security-issues" id="securityIssues">
-            <div class="no-issues">Run a scan to check for security issues</div>
-          </div>
-          
-          <div class="security-filters">
+          <div class="filter-buttons" role="group" aria-label="Filter issues">
             <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="critical">Critical</button>
             <button class="filter-btn" data-filter="warning">Warning</button>
             <button class="filter-btn" data-filter="info">Info</button>
           </div>
         </div>
-      </div>
+        
+        <div class="card">
+          <h3 class="card-title">Security Issues</h3>
+          <div id="securityIssues" class="issues-list">
+            <div class="no-issues">Run an analysis to scan for security issues</div>
+          </div>
+        </div>
+        
+        <div class="card mt-2">
+          <h3 class="card-title">Vulnerability Patterns</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="secretsFound">0</div>
+              <div class="stat-label">Secrets Detected</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="vulnsFound">0</div>
+              <div class="stat-label">Vulnerabilities</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="criticalCount">0</div>
+              <div class="stat-label">Critical Issues</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="warningCount">0</div>
+              <div class="stat-label">Warnings</div>
+            </div>
+          </div>
+        </div>
+      </section>
       
       <!-- Analytics Tab -->
-      <div class="tab-content" id="tab-analytics">
-        <div class="analytics-section">
-          <h2 class="section-title">Advanced Analytics</h2>
+      <section id="tab-analytics" class="tab-content" role="tabpanel" aria-labelledby="tab-analytics">
+        <h2 class="section-title mb-2">Advanced Analytics</h2>
+        
+        <div class="analytics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Code Complexity</span>
+              <span class="metric-value" id="complexityValue">--</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill" id="complexityBar" style="width: 0%"></div>
+            </div>
+          </div>
           
-          <!-- Complexity Metrics -->
-          <div class="analytics-grid">
-            <div class="analytics-card">
-              <h3>📊 Code Metrics</h3>
-              <div class="metric-list" id="codeMetrics">
-                <div class="metric-item">
-                  <span class="metric-label">Cyclomatic Complexity</span>
-                  <span class="metric-value" id="complexityScore">--</span>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">Technical Debt</span>
-                  <span class="metric-value" id="techDebt">--</span>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">Code Coverage Est.</span>
-                  <span class="metric-value" id="codeCoverage">--</span>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">Maintainability Index</span>
-                  <span class="metric-value" id="maintainability">--</span>
-                </div>
-              </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Technical Debt</span>
+              <span class="metric-value" id="techDebtValue">--</span>
             </div>
-            
-            <div class="analytics-card">
-              <h3>🔗 Dependency Health</h3>
-              <div class="dep-health" id="depHealth">
-                <div class="empty-state">Run scan to analyze dependencies</div>
-              </div>
+            <div class="metric-bar">
+              <div class="metric-fill" id="techDebtBar" style="width: 0%"></div>
             </div>
-            
-            <div class="analytics-card full-width">
-              <h3>📋 Duplicate Code Detection</h3>
-              <div class="duplicates-list" id="duplicatesList">
-                <div class="empty-state">Run scan to detect duplicate code</div>
-              </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Test Coverage</span>
+              <span class="metric-value" id="coverageValue">--</span>
             </div>
-            
-            <div class="analytics-card full-width">
-              <h3>📈 Trends</h3>
-              <canvas id="trendsChart"></canvas>
+            <div class="metric-bar">
+              <div class="metric-fill" id="coverageBar" style="width: 0%"></div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Maintainability</span>
+              <span class="metric-value" id="maintainabilityValue">--</span>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-fill" id="maintainabilityBar" style="width: 0%"></div>
             </div>
           </div>
         </div>
-      </div>
+        
+        <div class="card mt-2">
+          <h3 class="card-title">Dependency Analysis</h3>
+          <div id="dependencyContainer">
+            <p class="text-center">Run analysis to check dependencies</p>
+          </div>
+        </div>
+        
+        <div class="card mt-2">
+          <h3 class="card-title">Duplicate Code Detection</h3>
+          <div id="duplicatesContainer">
+            <p class="text-center">Run analysis to detect duplicates</p>
+          </div>
+        </div>
+      </section>
       
-      <!-- GitHub Integration Tab -->
-      <div class="tab-content" id="tab-github">
+      <!-- GitHub Tab -->
+      <section id="tab-github" class="tab-content" role="tabpanel" aria-labelledby="tab-github">
+        <h2 class="section-title mb-2">GitHub Integration</h2>
+        
         <div class="github-section">
-          <h2 class="section-title">GitHub Integration</h2>
-          
-          <div class="github-actions">
-            <button class="github-btn" id="fetchPRs">
-              <span class="icon">🔀</span> Pull Requests
-            </button>
-            <button class="github-btn" id="fetchIssues">
-              <span class="icon">📋</span> Issues
-            </button>
-            <button class="github-btn" id="createIssue">
-              <span class="icon">➕</span> Create Issue
-            </button>
-            <button class="github-btn" id="fetchBranches">
-              <span class="icon">🌿</span> Branches
-            </button>
-          </div>
-          
-          <div class="github-data">
-            <div class="github-panel" id="prPanel">
-              <h3>Pull Requests</h3>
-              <div class="github-list" id="prList">
-                <div class="empty-state">Click to load</div>
+          <div class="card">
+            <h3 class="card-title">Repository Info</h3>
+            <div id="repoInfoContainer" class="repo-info">
+              <div class="info-row">
+                <span class="info-label">Name</span>
+                <span class="info-value" id="repoName">--</span>
               </div>
-            </div>
-            
-            <div class="github-panel" id="issuesPanel">
-              <h3>Issues</h3>
-              <div class="github-list" id="issuesList">
-                <div class="empty-state">Click to load</div>
+              <div class="info-row">
+                <span class="info-label">Stars</span>
+                <span class="info-value" id="repoStars">--</span>
               </div>
-            </div>
-            
-            <div class="github-panel full-width" id="branchPanel">
-              <h3>Branch Comparison</h3>
-              <div class="branch-compare" id="branchCompare">
-                <div class="empty-state">Click to analyze</div>
+              <div class="info-row">
+                <span class="info-label">Forks</span>
+                <span class="info-value" id="repoForks">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Open Issues</span>
+                <span class="info-value" id="repoIssues">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Last Updated</span>
+                <span class="info-value" id="repoUpdated">--</span>
               </div>
             </div>
           </div>
           
-          <!-- Webhook Configuration -->
-          <div class="webhook-section">
-            <h3>🔔 Webhook Configuration</h3>
-            <div class="webhook-config">
-              <div class="webhook-url">
-                <label>Webhook URL:</label>
-                <input type="text" id="webhookUrl" class="webhook-input" readonly placeholder="Run server for webhook URL">
-                <button class="copy-btn" id="copyWebhook">📋</button>
-              </div>
-              <div class="webhook-events">
-                <label>Events to trigger scan:</label>
-                <div class="event-toggles">
-                  <label class="event-toggle">
-                    <input type="checkbox" id="eventPush" checked> Push
-                  </label>
-                  <label class="event-toggle">
-                    <input type="checkbox" id="eventPR"> Pull Request
-                  </label>
-                  <label class="event-toggle">
-                    <input type="checkbox" id="eventRelease"> Release
-                  </label>
-                </div>
-              </div>
-              <button class="github-btn" id="setupWebhook">Setup Webhook</button>
+          <div class="card">
+            <h3 class="card-title">Quick Actions</h3>
+            <div class="button-group" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button id="fetchIssues" class="btn btn-secondary">📋 Fetch Issues</button>
+              <button id="fetchPRs" class="btn btn-secondary">🔀 Fetch PRs</button>
+              <button id="fetchBranches" class="btn btn-secondary">🌿 Branches</button>
+              <button id="createIssue" class="btn btn-secondary">📝 Create Issue</button>
+            </div>
+            
+            <div id="issuesContainer" class="mt-2"></div>
+            <div id="prContainer" class="mt-2"></div>
+            <div id="branchContainer" class="mt-2"></div>
+          </div>
+        </div>
+        
+        <div class="card mt-2">
+          <h3 class="card-title">Webhook Configuration</h3>
+          <div class="webhook-config">
+            <div class="config-row">
+              <label class="config-label">
+                <input type="checkbox" id="webhookPush" checked>
+                Push Events
+              </label>
+            </div>
+            <div class="config-row">
+              <label class="config-label">
+                <input type="checkbox" id="webhookPR">
+                Pull Request Events
+              </label>
+            </div>
+            <div class="config-row">
+              <label class="config-label">
+                <input type="checkbox" id="webhookRelease">
+                Release Events
+              </label>
             </div>
           </div>
         </div>
-      </div>
+      </section>
       
       <!-- Config Tab -->
-      <div class="tab-content" id="tab-config">
-        <div class="config-section">
-          <h2 class="section-title">Configuration</h2>
-          
-          <!-- Module Configuration -->
-          <div class="config-card">
-            <h3>⚙️ Module Configuration</h3>
-            <div class="module-config" id="moduleConfig">
-              <!-- Dynamically generated -->
+      <section id="tab-config" class="tab-content" role="tabpanel" aria-labelledby="tab-config">
+        <h2 class="section-title mb-2">Configuration</h2>
+        
+        <div class="config-grid">
+          <div class="config-section">
+            <h3>Module Configuration</h3>
+            <div id="moduleConfig">
+              <!-- Populated by JS -->
             </div>
           </div>
           
-          <!-- Thresholds -->
-          <div class="config-card">
-            <h3>📊 Thresholds</h3>
-            <div class="threshold-config">
-              <div class="threshold-item">
-                <label>Max File Size (KB)</label>
-                <input type="number" id="maxFileSize" value="1000" class="threshold-input">
-              </div>
-              <div class="threshold-item">
-                <label>Max Complexity</label>
-                <input type="number" id="maxComplexity" value="20" class="threshold-input">
-              </div>
-              <div class="threshold-item">
-                <label>Min Coverage %</label>
-                <input type="number" id="minCoverage" value="50" class="threshold-input">
-              </div>
+          <div class="config-section">
+            <h3>Thresholds</h3>
+            <div class="config-row">
+              <label class="config-label" for="maxFileSize">Max File Size (KB)</label>
+              <input type="number" id="maxFileSize" class="config-input" value="1000">
+            </div>
+            <div class="config-row">
+              <label class="config-label" for="maxComplexity">Max Complexity</label>
+              <input type="number" id="maxComplexity" class="config-input" value="20">
+            </div>
+            <div class="config-row">
+              <label class="config-label" for="minCoverage">Min Coverage (%)</label>
+              <input type="number" id="minCoverage" class="config-input" value="50">
             </div>
           </div>
           
-          <!-- Ignore Patterns -->
-          <div class="config-card">
-            <h3>🚫 Ignore Patterns</h3>
-            <div class="ignore-config">
-              <textarea id="ignorePatterns" class="ignore-textarea" placeholder="Enter patterns to ignore (one per line)&#10;node_modules&#10;*.min.js&#10;.env"></textarea>
-              <button class="save-config-btn" id="saveIgnorePatterns">Save Patterns</button>
-            </div>
+          <div class="config-section">
+            <h3>Ignore Patterns</h3>
+            <textarea id="ignorePatterns" class="config-textarea" placeholder="One pattern per line">node_modules
+*.min.js
+.env
+dist
+build</textarea>
+            <button id="saveIgnorePatterns" class="btn btn-sm btn-secondary mt-1">Save Patterns</button>
           </div>
           
-          <!-- Custom Rules -->
-          <div class="config-card">
-            <h3>📋 Custom Rules</h3>
-            <div class="rules-config">
-              <textarea id="customRules" class="rules-textarea" placeholder="Custom rules in JSON format&#10;[&#10;  {&#10;    &quot;pattern&quot;: &quot;TODO&quot;,&#10;    &quot;severity&quot;: &quot;info&quot;,&#10;    &quot;message&quot;: &quot;Todo found&quot;&#10;  }&#10;]"></textarea>
-              <button class="save-config-btn" id="saveCustomRules">Save Rules</button>
-            </div>
-          </div>
-          
-          <!-- Export/Import -->
-          <div class="config-card">
-            <h3>💾 Export / Import</h3>
-            <div class="export-config">
-              <button class="export-btn" id="exportConfig">📥 Export Config</button>
-              <label class="import-btn">
-                📤 Import Config
-                <input type="file" id="importConfig" accept=".json" hidden>
-              </label>
-              <button class="export-btn" id="exportReport">📄 Export Report (JSON)</button>
-              <button class="export-btn" id="exportPDF">📑 Export Report (PDF)</button>
-            </div>
+          <div class="config-section">
+            <h3>Custom Rules (JSON)</h3>
+            <textarea id="customRules" class="config-textarea" placeholder='[{"pattern": "TODO", "severity": "info"}]'></textarea>
+            <button id="saveCustomRules" class="btn btn-sm btn-secondary mt-1">Save Rules</button>
           </div>
         </div>
-      </div>
-      
-      <!-- Activity Log -->
-      <div class="log-section">
-        <h3 class="log-title">Activity Log</h3>
-        <div class="log-container" id="logContainer"></div>
-      </div>
+        
+        <div class="card mt-2">
+          <h3 class="card-title">Export / Import</h3>
+          <div class="button-group" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <button id="exportConfig" class="btn btn-secondary">📤 Export Config</button>
+            <label class="btn btn-secondary" style="margin: 0;">
+              📥 Import Config
+              <input type="file" id="importConfig" accept=".json" style="display: none;">
+            </label>
+            <button id="exportReport" class="btn btn-secondary">📊 Export Report</button>
+            <button id="exportPDF" class="btn btn-secondary">📄 Export PDF</button>
+          </div>
+        </div>
+      </section>
     </main>
     
-    <footer class="footer">
-      <p>Scanning: <a href="https://github.com/XxNightLordxX/Lifestar" target="_blank" id="footerRepoLink">XxNightLordxX/Lifestar</a></p>
-      <p class="cycle-count">Cycles: <span id="cycleCount">0</span></p>
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+      <div class="footer-left">
+        <span>Cycle #<span id="cycleCount">0</span></span>
+        <span>•</span>
+        <a id="footerRepoLink" href="https://github.com/XxNightLordxX/Lifestar" target="_blank" rel="noopener noreferrer">
+          XxNightLordxX/Lifestar
+        </a>
+      </div>
+      <div class="footer-right">
+        <span>Lifestar Scanner v2.0</span>
+      </div>
     </footer>
   </div>
   
   <!-- Add Repository Modal -->
-  <div class="modal" id="addRepoModal">
-    <div class="modal-content">
-      <h3>Add Repository</h3>
-      <input type="text" id="newRepoInput" class="modal-input" placeholder="owner/repository">
-      <div class="modal-actions">
-        <button class="modal-btn cancel" id="cancelAddRepo">Cancel</button>
-        <button class="modal-btn confirm" id="confirmAddRepo">Add</button>
+  <div id="addRepoModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title" class="modal-title">Add Repository</h3>
+      </div>
+      <div class="modal-body">
+        <input type="text" 
+               id="newRepoInput" 
+               class="token-input" 
+               placeholder="owner/repo"
+               aria-label="Repository name (owner/repo)">
+        <small class="form-hint">Enter repository in format: owner/repository-name</small>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelAddRepo" class="btn btn-secondary">Cancel</button>
+        <button id="confirmAddRepo" class="btn">Add Repository</button>
       </div>
     </div>
   </div>
   
+  <!-- Scripts -->
   <script src="js/app.js"></script>
 </body>
 </html>
