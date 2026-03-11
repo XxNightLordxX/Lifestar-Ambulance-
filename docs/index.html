@@ -12,7 +12,15 @@
 <body>
   <div class="container">
     <main class="card">
-      <h1 class="title">Lifestar Repository Scanner</h1>
+      <header class="header">
+        <h1 class="title">Lifestar Repository Scanner</h1>
+        <div class="repo-switcher">
+          <select id="repoSelector" class="repo-select">
+            <option value="XxNightLordxX/Lifestar">XxNightLordxX/Lifestar</option>
+          </select>
+          <button class="add-repo-btn" id="addRepoBtn" title="Add Repository">+</button>
+        </div>
+      </header>
       
       <div class="repo-info" id="repoInfo">
         <div class="repo-stats">
@@ -31,7 +39,7 @@
       <!-- Token Input Section -->
       <div class="token-section" id="tokenSection">
         <input type="password" id="tokenInput" class="token-input" placeholder="GitHub Personal Access Token (for write operations)">
-        <button class="token-btn" id="saveTokenBtn">Save Token</button>
+        <button class="token-btn" id="saveTokenBtn">Save</button>
       </div>
       
       <div class="controls">
@@ -54,13 +62,18 @@
         <button class="tab-btn active" data-tab="modules">Modules</button>
         <button class="tab-btn" data-tab="dashboard">Dashboard</button>
         <button class="tab-btn" data-tab="security">Security</button>
+        <button class="tab-btn" data-tab="analytics">Analytics</button>
         <button class="tab-btn" data-tab="github">GitHub</button>
+        <button class="tab-btn" data-tab="config">Config</button>
       </div>
       
       <!-- Modules Tab -->
       <div class="tab-content active" id="tab-modules">
         <div class="modules-section">
-          <h2 class="section-title">Processing Modules</h2>
+          <div class="section-header">
+            <h2 class="section-title">Processing Modules</h2>
+            <button class="icon-btn" id="toggleAllModules" title="Enable/Disable All">⚙️</button>
+          </div>
           <div class="modules-container" id="modulesContainer"></div>
         </div>
       </div>
@@ -133,11 +146,11 @@
             <div class="security-stats">
               <div class="sec-stat">
                 <span class="sec-stat-value" id="secretsFound">0</span>
-                <span class="sec-stat-label">Secrets Detected</span>
+                <span class="sec-stat-label">Secrets</span>
               </div>
               <div class="sec-stat">
                 <span class="sec-stat-value" id="vulnerabilities">0</span>
-                <span class="sec-stat-label">Vulnerabilities</span>
+                <span class="sec-stat-label">Critical</span>
               </div>
               <div class="sec-stat">
                 <span class="sec-stat-value" id="warnings">0</span>
@@ -159,6 +172,57 @@
         </div>
       </div>
       
+      <!-- Analytics Tab -->
+      <div class="tab-content" id="tab-analytics">
+        <div class="analytics-section">
+          <h2 class="section-title">Advanced Analytics</h2>
+          
+          <!-- Complexity Metrics -->
+          <div class="analytics-grid">
+            <div class="analytics-card">
+              <h3>📊 Code Metrics</h3>
+              <div class="metric-list" id="codeMetrics">
+                <div class="metric-item">
+                  <span class="metric-label">Cyclomatic Complexity</span>
+                  <span class="metric-value" id="complexityScore">--</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Technical Debt</span>
+                  <span class="metric-value" id="techDebt">--</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Code Coverage Est.</span>
+                  <span class="metric-value" id="codeCoverage">--</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Maintainability Index</span>
+                  <span class="metric-value" id="maintainability">--</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="analytics-card">
+              <h3>🔗 Dependency Health</h3>
+              <div class="dep-health" id="depHealth">
+                <div class="empty-state">Run scan to analyze dependencies</div>
+              </div>
+            </div>
+            
+            <div class="analytics-card full-width">
+              <h3>📋 Duplicate Code Detection</h3>
+              <div class="duplicates-list" id="duplicatesList">
+                <div class="empty-state">Run scan to detect duplicate code</div>
+              </div>
+            </div>
+            
+            <div class="analytics-card full-width">
+              <h3>📈 Trends</h3>
+              <canvas id="trendsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <!-- GitHub Integration Tab -->
       <div class="tab-content" id="tab-github">
         <div class="github-section">
@@ -166,16 +230,16 @@
           
           <div class="github-actions">
             <button class="github-btn" id="fetchPRs">
-              <span class="icon">🔀</span> Fetch Pull Requests
+              <span class="icon">🔀</span> Pull Requests
             </button>
             <button class="github-btn" id="fetchIssues">
-              <span class="icon">📋</span> Fetch Issues
+              <span class="icon">📋</span> Issues
             </button>
             <button class="github-btn" id="createIssue">
-              <span class="icon">➕</span> Create Issue from Scan
+              <span class="icon">➕</span> Create Issue
             </button>
             <button class="github-btn" id="fetchBranches">
-              <span class="icon">🌿</span> Compare Branches
+              <span class="icon">🌿</span> Branches
             </button>
           </div>
           
@@ -183,29 +247,115 @@
             <div class="github-panel" id="prPanel">
               <h3>Pull Requests</h3>
               <div class="github-list" id="prList">
-                <div class="empty-state">Click "Fetch Pull Requests" to load</div>
+                <div class="empty-state">Click to load</div>
               </div>
             </div>
             
             <div class="github-panel" id="issuesPanel">
               <h3>Issues</h3>
               <div class="github-list" id="issuesList">
-                <div class="empty-state">Click "Fetch Issues" to load</div>
+                <div class="empty-state">Click to load</div>
               </div>
             </div>
             
             <div class="github-panel full-width" id="branchPanel">
               <h3>Branch Comparison</h3>
               <div class="branch-compare" id="branchCompare">
-                <div class="empty-state">Click "Compare Branches" to analyze</div>
+                <div class="empty-state">Click to analyze</div>
               </div>
             </div>
           </div>
           
-          <div class="commit-status">
-            <h3>Commit Status</h3>
-            <div class="status-info" id="commitStatus">
-              <span class="status-text">No recent commit status</span>
+          <!-- Webhook Configuration -->
+          <div class="webhook-section">
+            <h3>🔔 Webhook Configuration</h3>
+            <div class="webhook-config">
+              <div class="webhook-url">
+                <label>Webhook URL:</label>
+                <input type="text" id="webhookUrl" class="webhook-input" readonly placeholder="Run server for webhook URL">
+                <button class="copy-btn" id="copyWebhook">📋</button>
+              </div>
+              <div class="webhook-events">
+                <label>Events to trigger scan:</label>
+                <div class="event-toggles">
+                  <label class="event-toggle">
+                    <input type="checkbox" id="eventPush" checked> Push
+                  </label>
+                  <label class="event-toggle">
+                    <input type="checkbox" id="eventPR"> Pull Request
+                  </label>
+                  <label class="event-toggle">
+                    <input type="checkbox" id="eventRelease"> Release
+                  </label>
+                </div>
+              </div>
+              <button class="github-btn" id="setupWebhook">Setup Webhook</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Config Tab -->
+      <div class="tab-content" id="tab-config">
+        <div class="config-section">
+          <h2 class="section-title">Configuration</h2>
+          
+          <!-- Module Configuration -->
+          <div class="config-card">
+            <h3>⚙️ Module Configuration</h3>
+            <div class="module-config" id="moduleConfig">
+              <!-- Dynamically generated -->
+            </div>
+          </div>
+          
+          <!-- Thresholds -->
+          <div class="config-card">
+            <h3>📊 Thresholds</h3>
+            <div class="threshold-config">
+              <div class="threshold-item">
+                <label>Max File Size (KB)</label>
+                <input type="number" id="maxFileSize" value="1000" class="threshold-input">
+              </div>
+              <div class="threshold-item">
+                <label>Max Complexity</label>
+                <input type="number" id="maxComplexity" value="20" class="threshold-input">
+              </div>
+              <div class="threshold-item">
+                <label>Min Coverage %</label>
+                <input type="number" id="minCoverage" value="50" class="threshold-input">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Ignore Patterns -->
+          <div class="config-card">
+            <h3>🚫 Ignore Patterns</h3>
+            <div class="ignore-config">
+              <textarea id="ignorePatterns" class="ignore-textarea" placeholder="Enter patterns to ignore (one per line)&#10;node_modules&#10;*.min.js&#10;.env"></textarea>
+              <button class="save-config-btn" id="saveIgnorePatterns">Save Patterns</button>
+            </div>
+          </div>
+          
+          <!-- Custom Rules -->
+          <div class="config-card">
+            <h3>📋 Custom Rules</h3>
+            <div class="rules-config">
+              <textarea id="customRules" class="rules-textarea" placeholder="Custom rules in JSON format&#10;[&#10;  {&#10;    &quot;pattern&quot;: &quot;TODO&quot;,&#10;    &quot;severity&quot;: &quot;info&quot;,&#10;    &quot;message&quot;: &quot;Todo found&quot;&#10;  }&#10;]"></textarea>
+              <button class="save-config-btn" id="saveCustomRules">Save Rules</button>
+            </div>
+          </div>
+          
+          <!-- Export/Import -->
+          <div class="config-card">
+            <h3>💾 Export / Import</h3>
+            <div class="export-config">
+              <button class="export-btn" id="exportConfig">📥 Export Config</button>
+              <label class="import-btn">
+                📤 Import Config
+                <input type="file" id="importConfig" accept=".json" hidden>
+              </label>
+              <button class="export-btn" id="exportReport">📄 Export Report (JSON)</button>
+              <button class="export-btn" id="exportPDF">📑 Export Report (PDF)</button>
             </div>
           </div>
         </div>
@@ -219,9 +369,21 @@
     </main>
     
     <footer class="footer">
-      <p>Scanning: <a href="https://github.com/XxNightLordxX/Lifestar" target="_blank">XxNightLordxX/Lifestar</a></p>
+      <p>Scanning: <a href="https://github.com/XxNightLordxX/Lifestar" target="_blank" id="footerRepoLink">XxNightLordxX/Lifestar</a></p>
       <p class="cycle-count">Cycles: <span id="cycleCount">0</span></p>
     </footer>
+  </div>
+  
+  <!-- Add Repository Modal -->
+  <div class="modal" id="addRepoModal">
+    <div class="modal-content">
+      <h3>Add Repository</h3>
+      <input type="text" id="newRepoInput" class="modal-input" placeholder="owner/repository">
+      <div class="modal-actions">
+        <button class="modal-btn cancel" id="cancelAddRepo">Cancel</button>
+        <button class="modal-btn confirm" id="confirmAddRepo">Add</button>
+      </div>
+    </div>
   </div>
   
   <script src="js/app.js"></script>
